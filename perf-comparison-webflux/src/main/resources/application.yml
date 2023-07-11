@@ -1,0 +1,46 @@
+server:
+  port: ${server_port}
+  shutdown: graceful
+  application.name: ${application_name}
+  http2.enabled: true
+
+spring:
+  lifecycle.timeout-per-shutdown-phase: 20s
+  sleuth.reactor.instrumentation-type: DECORATE_QUEUES
+  cloud:
+    zookeeper:
+      config:
+        enabled: false
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+    redis:
+      host: ${redis_url}
+      port: ${redis_port}
+      timeout: 10000
+      password: ${redis_password}
+      database: ${redis_db}
+  r2dbc:
+    url: ${db_url}
+    name: ${db_name}
+    username: ${db_username}
+    password: ${db_password}
+    pool:
+      enabled: ${db_pool_enabled}
+      initial-size: ${db_pool_initial_size}
+      max-idle-time: ${db_pool_max_idle_time}
+      max-size: ${db_pool_max_size}
+
+management:
+  endpoints.web.exposure.include: health,prometheus
+  metrics.tags.application: ${application_name}
+
+logging:
+  level:
+    web: INFO
+    org.springframework.r2dbc: INFO
+    org.apache.kafka: WARN
+  pattern:
+    console: ${application_name} ${hostName} %d{dd-MM-yyyy HH:mm:ss.SSS} [%X{traceId},%X{spanId}] %-5level %logger{36}:%M - %X{guid} %msg%n
+
