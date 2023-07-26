@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meesho.perfcomparison.entities.Data;
 import com.meesho.perfcomparison.repositories.DataRepository;
 import com.meesho.perfcomparison.services.DbService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class R2dbcMysqlDbService implements DbService {
     final ObjectMapper mapper = new ObjectMapper();
@@ -26,22 +28,14 @@ public class R2dbcMysqlDbService implements DbService {
     }
 
     @Override
-    public Mono<Data> fetchCachedData(Integer id) {
-        return reactiveRedisTemplate
-                .opsForValue()
-                .get(id)
-                .switchIfEmpty(dataRepository.findById(id).flatMap(data -> {
+    public Mono<Data> insertData(Data data) {
+        return dataRepository
+                .save(data)
+                .doOnNext(data1 -> {
                     try {
-                        return reactiveRedisTemplate.opsForValue().set(id, mapper.writeValueAsString(data));
+                        reactiveRedisTemplate.opsForValue().set(data1.getId(), mapper.writeValueAsString(data1));
                     } catch (JsonProcessingException e) {
-                        return Mono.error(new RuntimeException(e));
-                    }
-                }).then(reactiveRedisTemplate.opsForValue().get(id)))
-                .map(data -> {
-                    try {
-                        return mapper.readValue(data, Data.class);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        log.error("Error while inserting data in redis", e);
                     }
                 });
     }

@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public interface DbService {
+public interface CacheService {
     Mono<Data> fetchData(Integer id);
-
-    Mono<Data> insertData(Data data);
 }
