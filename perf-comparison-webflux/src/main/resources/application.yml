@@ -44,3 +44,13 @@ logging:
   pattern:
     console: ${application_name} ${hostName} %d{dd-MM-yyyy HH:mm:ss.SSS} [%X{traceId},%X{spanId}] %-5level %logger{36}:%M - %X{guid} %msg%n
 
+kafka:
+    bootstrap-servers: ${kafka_bootstrap_servers}
+    topic: ${kafka_topic}
+    acks: ${kafka_acks}
+    retries: ${kafka_retries}
+    batch-size: ${kafka_batch_size}
+    linger: ${kafka_linger}
+    buffer-memory: ${kafka_buffer_memory}
+    key-serializer: ${kafka_key_serializer}
+    value-serializer: ${kafka_value_serializer}
