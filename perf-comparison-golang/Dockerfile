@@ -1,21 +1,18 @@
-# Dockerfile
-
 # Use the official Go Alpine image as the base image
 FROM golang:alpine
 
 # Set the working directory inside the container
 WORKDIR /app
 
+# Install git
+RUN apk add --no-cache git
+
 # Copy the application files into the container
 COPY . .
 
-# Install required packages
-RUN apk add --no-cache git
-RUN go get github.com/jmoiron/sqlx
-
-# Set the environment variables for MySQL and Redis endpoints
-ENV MYSQL_ENDPOINT=mysql-container
-ENV REDIS_ENDPOINT=redis-container
+# Fetch all dependencies and put them in the vendor directory
+RUN go mod tidy
+RUN go mod vendor
 
 # Build the Go application
 RUN go build -o main .
